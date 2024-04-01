@@ -11,7 +11,7 @@ public class Server extends Thread {
 
         }catch(Exception e){
             System.err.println("Error starting server");
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 }

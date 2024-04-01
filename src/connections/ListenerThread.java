@@ -3,7 +3,6 @@ package connections;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.rmi.ServerError;
 
 public class ListenerThread extends Thread {
 
@@ -11,7 +10,7 @@ public class ListenerThread extends Thread {
     ServerSocket serverSocket = null;
 
 
-    public ListenerThread(int port) throws IOException {
+    public ListenerThread(int port){
         this.port = port;
         try {
             this.serverSocket = new ServerSocket(port);

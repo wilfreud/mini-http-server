@@ -4,7 +4,7 @@ import java.net.Socket;
 
 public class WorkerThread extends Thread{
 
-    Socket requestSocket = null;
+    Socket requestSocket;
     public WorkerThread(Socket socket) {
         this.requestSocket = socket;
     }
