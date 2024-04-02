@@ -2,6 +2,7 @@ package connections;
 
 import java.io.*;
 import java.net.Socket;
+import java.io.File;
 
 public class WorkerThread extends Thread{
 
@@ -35,7 +36,7 @@ public class WorkerThread extends Thread{
             output.write(response.getBytes());
             output.flush();
 
-
+            RequestHelper.printInputStream(input);
 
         }catch(IOException err){
             System.err.println("Error handling incoming request");
