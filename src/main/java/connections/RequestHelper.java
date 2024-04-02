@@ -10,11 +10,13 @@ class RequestHelper {
         BufferedReader buf = new BufferedReader(new InputStreamReader(stream));
         String str = buf.readLine();
 
-        while(str != null){
+        if(buf.markSupported()) buf.mark(0);
+
+        while (!str.isEmpty() && !str.isBlank()) {
             System.out.println(str);
-            str= buf.readLine();
+            str = buf.readLine();
         }
 
-
+        buf.reset();
     }
 }

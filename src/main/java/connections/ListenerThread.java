@@ -10,7 +10,7 @@ public class ListenerThread extends Thread {
     ServerSocket serverSocket = null;
 
 
-    public ListenerThread(int port){
+    public ListenerThread(int port) {
         this.port = port;
         try {
             this.serverSocket = new ServerSocket(port);

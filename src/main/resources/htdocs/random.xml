@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<annuaire>
+    <contact id="1">
+        <nom>Jean Dupont</nom>
+        <email>jean.dupont@example.com</email>
+        <telephone>0123456789</telephone>
+    </contact>
+    <contact id="2">
+        <nom>Marie Curie</nom>
+        <email>marie.curie@example.com</email>
+        <telephone>9876543210</telephone>
+    </contact>
+    <contact id="3">
+        <nom>Henri Poincaré</nom>
+        <email>henri.poincare@example.com</email>
+        <telephone>0246813579</telephone>
+    </contact>
+</annuaire>
