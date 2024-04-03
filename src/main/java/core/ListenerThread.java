@@ -27,6 +27,7 @@ public class ListenerThread extends Thread {
     @Override
     public void run() {
         LOGGER.info("Server running on http://localhost:" + this.port);
+        if(interrupted()) return;
         try {
             while (this.serverSocket.isBound() && !this.serverSocket.isClosed()) {
                 Socket incomingReq = this.serverSocket.accept();

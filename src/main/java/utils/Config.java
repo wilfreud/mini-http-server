@@ -1,7 +1,7 @@
 package utils;
 
 public class Config {
-    public static final int SERVER_PORT = 7070;
+    public static final int SERVER_PORT = 80;
     public static final String APP_VERSION = "0.0.1";
 
     public static final String LOG_FILE_DIR  = "src/main/resources/logs.txt";
