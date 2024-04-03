@@ -94,11 +94,17 @@ public class FileManager {
         output.write(response.getBytes());
     }
 
-    public void execPythonScriptAndPutInOutputStream(OutputStream output, File pyFile) throws PythonExecutionException {
+    public void runScriptAndPutInOutputStream(OutputStream output, File scriptFile) throws PythonExecutionException {
         try {
-            Path path = Paths.get(pyFile.getAbsolutePath());
+            Path path = Paths.get(scriptFile.getAbsolutePath());
 
-            Process process = Runtime.getRuntime().exec("python %s".formatted(path.toString()));
+            // Run script: assuming the programs are installed on the system and PATH is set
+            String command = "";
+            if(path.endsWith(".py")){
+                command = "python";
+            }
+
+            Process process = Runtime.getRuntime().exec(command + " " + path);
 
             BufferedReader scriptOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder outputBuilder = new StringBuilder();
@@ -112,7 +118,7 @@ public class FileManager {
             output.write(response.getBytes());
         } catch (IOException | InvalidPathException err) {
             System.err.println(err.getMessage());
-            throw new PythonExecutionException("Error executing python script ");
+            throw new PythonExecutionException("Error executing python script " + scriptFile.getName());
         }
     }
 }

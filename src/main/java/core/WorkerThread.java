@@ -67,7 +67,7 @@ public class WorkerThread extends Thread {
                         // Handle case: simple file
                         else {
                             if (URI.endsWith(".py")) {
-                                fileManager.execPythonScriptAndPutInOutputStream(output, fsNode);
+                                fileManager.runScriptAndPutInOutputStream(output, fsNode);
                                 break;
                             }
                             fileManager.putFileInOutputStream(output, fsNode);
