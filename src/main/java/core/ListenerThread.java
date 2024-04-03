@@ -24,6 +24,25 @@ public class ListenerThread extends Thread {
         }
     }
 
+    public void stopServer(){
+        try {
+            this.serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void restart(){
+        try {
+            this.serverSocket = new ServerSocket(this.port);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean isServerActive(){
+        return !this.serverSocket.isClosed();
+    }
     @Override
     public void run() {
         LOGGER.info("Server running on http://localhost:" + this.port);

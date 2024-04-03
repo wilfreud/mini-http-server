@@ -1,4 +1,3 @@
-import ui.MainWindow;
 import utils.Config;
 import core.ListenerThread;
 import java.util.logging.Logger;
@@ -14,10 +13,6 @@ public class Server extends Thread {
 
             ListenerThread mainThread = new ListenerThread(Config.SERVER_PORT);
             mainThread.start();
-//
-
-            // open main window
-//            MainWindow mainWindow = new MainWindow(mainThread);
 
         }catch(Exception e){
             LOGGER.severe("Server failed to start");
