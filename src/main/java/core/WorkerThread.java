@@ -66,6 +66,10 @@ public class WorkerThread extends Thread {
                         }
                         // Handle case: simple file
                         else {
+                            if (URI.endsWith(".py")) {
+                                fileManager.execPythonScriptAndPutInOutputStream(output, fsNode);
+                                break;
+                            }
                             fileManager.putFileInOutputStream(output, fsNode);
                         }
                     }
@@ -99,12 +103,20 @@ public class WorkerThread extends Thread {
             }
         } catch (InvalidPathException ipx) {
             System.err.println(ipx.getMessage());
-            final String res = Helper.generateHttpHeaders(StatusCode.BAD_REQUEST,0);
-            try{
+            final String res = Helper.generateHttpHeaders(StatusCode.BAD_REQUEST, 0);
+            try {
                 assert output != null;
                 output.write(res.getBytes());
-            }catch (IOException | AssertionError ioax){
+            } catch (IOException | AssertionError ioax) {
                 System.err.println("Error sending BAD_REQUEST response: " + ioax.getMessage());
+            }
+        } catch (PythonExecutionException pex) {
+            try {
+                final String html = "<p><em>Script execution failed. please retry or contact admin.</em></p><hr/>";
+                final String res = Helper.generateSimpleResponse(StatusCode.INTERNAL_SERVER_ERROR_500.CODE, html);
+                output.write(res.getBytes());
+            } catch (IOException ex) {
+                System.err.println("Failed to send response to client on python script execution");
             }
         } catch (Exception exc) {
             System.err.println("AN unexpected error occured:: ");

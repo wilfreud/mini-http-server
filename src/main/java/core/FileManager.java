@@ -1,9 +1,11 @@
 package core;
 
 import http.Helper;
+import http.PythonExecutionException;
 import http.StatusCode;
 
 import java.io.*;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -37,6 +39,8 @@ public class FileManager {
 
         File[] files = directoryContent.listFiles();
 
+        Path currentFolder = Paths.get(parentPath);
+
         StringBuilder htmlContent = new StringBuilder();
         String topHtml = """
                 <html lang="en">
@@ -45,19 +49,20 @@ public class FileManager {
                     <title>Commodore64 - Server</title>
                     <style>
                         body {
-                            margin: 10px 10px;
+                            margin: 2em 4em;
                             font-family: Tahoma, Verdana, Arial, sans-serif;
                         }
                     </style>
                 </head>
                 <body>
+                <h2>Index of /%s</h2>
                 <ul>
-                """;
+                """.formatted(parentPath);
         htmlContent.append(topHtml);
 
         if (files != null) {
             Path parentDirectoryPath = Paths.get(directoryContent.getParent()).normalize();
-            Path currentFolder = Paths.get(parentPath);
+
 
             String immediateParentName = currentFolder.resolve("..").normalize().toString().replace("\\", "/");
 
@@ -87,5 +92,27 @@ public class FileManager {
 
         String response = Helper.generateSimpleResponse(StatusCode.OK.CODE, htmlContent.toString());
         output.write(response.getBytes());
+    }
+
+    public void execPythonScriptAndPutInOutputStream(OutputStream output, File pyFile) throws PythonExecutionException {
+        try {
+            Path path = Paths.get(pyFile.getAbsolutePath());
+
+            Process process = Runtime.getRuntime().exec("python %s".formatted(path.toString()));
+
+            BufferedReader scriptOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder outputBuilder = new StringBuilder();
+            String line;
+            while ((line = scriptOutput.readLine()) != null) {
+                outputBuilder.append(line).append("\n");
+            }
+            String scriptResult = outputBuilder.toString();
+
+            String response = Helper.generateSimpleResponse(StatusCode.OK.CODE, scriptResult);
+            output.write(response.getBytes());
+        } catch (IOException | InvalidPathException err) {
+            System.err.println(err.getMessage());
+            throw new PythonExecutionException("Error executing python script ");
+        }
     }
 }
