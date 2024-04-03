@@ -4,11 +4,14 @@ import http.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class WorkerThread extends Thread {
+    private Socket requestSocket;
+    private String BASE_DIR = "src/main/resources/htdocs";
 
-    Socket requestSocket;
 
     public WorkerThread(Socket socket) {
         this.requestSocket = socket;
@@ -16,7 +19,6 @@ public class WorkerThread extends Thread {
 
     @Override
     public void run() {
-        System.out.println("Incoming request...");
         InputStream input = null;
         OutputStream output = null;
 
@@ -29,24 +31,57 @@ public class WorkerThread extends Thread {
             // parse incoming request for relevant information
             RequestParser parsedRequest = new RequestParser(input);
 
-//
 //            // Actions depending on request type
             final Method method = Method.valueOf(parsedRequest.getMETHOD());
             String response;
             switch (method) {
                 case GET:
-                    System.out.println("GET METHOD detected");
-//                    // Define a default response
-                    String html = "<h1>Wazzuppp!!!?!</h1>";
-                    response = Helper.generateResponse(StatusCode.OK.CODE, html);
+                    // Find file
+                    /*TODO
+                     * try/catch path creation
+                     * check if user is trying to access parent folder
+                     *  */
 
+                    final String URI = parsedRequest.getRESOURCE_URI();
 
-                    output.write(response.getBytes());
+                    // resource path validation
+                    Path requestedPath = Paths.get(BASE_DIR, URI).normalize();
+                    Path baseDirPath = Paths.get(BASE_DIR).normalize();
+
+                    if (!requestedPath.startsWith(baseDirPath)) {
+                        response = Helper.generateHttpHeaders(StatusCode.FORBIDDEN, StatusCode.FORBIDDEN.MESSAGE.length());
+                        output.write(response.getBytes());
+                        break;
+                    }
+
+                    File resourceFile = new File(BASE_DIR, URI);
+
+                    // Special case: Root file
+                    if (URI.isEmpty()) {
+                        resourceFile = new File(BASE_DIR, "index.html");
+                    }
+
+                    // Handle case: file not found
+                    if (!resourceFile.exists()) {
+                        response = Helper.generateSimpleResponse(StatusCode.NOT_FOUD_404.CODE, StatusCode.NOT_FOUD_404.MESSAGE);
+                        output.write(response.getBytes());
+                        break;
+                    } else {
+                        FileManager fileManager = new FileManager();
+                        // Handle case: directory
+                        if (resourceFile.isDirectory()) {
+                            System.out.println("dir");
+                        }
+                        // Handle case: simple file
+                        else {
+                            fileManager.putFileInOutputStream(output, resourceFile);
+                        }
+                    }
+
                     break;
 
                 default:
-                    System.out.println("In default...");
-                    response = Helper.generateResponse(StatusCode.NOT_IMPLEMENTED.CODE, StatusCode.NOT_IMPLEMENTED.MESSAGE);
+                    response = Helper.generateSimpleResponse(StatusCode.NOT_IMPLEMENTED.CODE, StatusCode.NOT_IMPLEMENTED.MESSAGE);
                     output.write(response.getBytes());
             }
 
@@ -54,21 +89,23 @@ public class WorkerThread extends Thread {
 
         } catch (IOException err) {
             try {
-                final String res = Helper.generateResponse(StatusCode.INTERNAL_SERVER_ERROR_500.CODE, StatusCode.INTERNAL_SERVER_ERROR_500.MESSAGE);
+                final String res = Helper.generateSimpleResponse(StatusCode.INTERNAL_SERVER_ERROR_500.CODE, StatusCode.INTERNAL_SERVER_ERROR_500.MESSAGE);
                 output.write(res.getBytes());
-                err.printStackTrace();
+                System.err.println(err.getMessage());
             } catch (IOException err2) {
-                err2.printStackTrace();
+                System.err.println(err2.getMessage());
             }
         } catch (ParsingException err) {
             System.err.println(err.getMessage());
-            final String res = Helper.generateResponse(StatusCode.INTERNAL_SERVER_ERROR_500.CODE, StatusCode.INTERNAL_SERVER_ERROR_500.MESSAGE);
+            final String res = Helper.generateSimpleResponse(StatusCode.INTERNAL_SERVER_ERROR_500.CODE, StatusCode.INTERNAL_SERVER_ERROR_500.MESSAGE);
             try {
                 output.write(res.getBytes());
             } catch (IOException e) {
                 System.err.println("Error sending client's response");
                 System.err.println(e.getMessage());
             }
+        } catch (Exception exc) {
+            exc.printStackTrace();
         } finally {
             if (this.requestSocket != null) {
                 try {

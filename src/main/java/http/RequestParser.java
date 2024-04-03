@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 
 public class RequestParser {
     private String METHOD;
-    private String RESOURCE_PATH;
+    private String RESOURCE_URI;
     private String HOST;
     private String CONTENT_TYPE;
     private String ACCEPT;
@@ -25,13 +25,13 @@ public class RequestParser {
 
         String line = buf.readLine();
 
-        if (line.isEmpty()) throw new ParsingException("Error while parsing incoming HTTP request");
+        if (line == null || line.isEmpty()) throw new ParsingException("Error while parsing incoming HTTP request: Empty request");
 
         String[] lineContent = line.split(" ");
 
         // Extract HTTP method and URI
         this.METHOD = lineContent[0];
-        this.RESOURCE_PATH = lineContent[1];
+        this.RESOURCE_URI = lineContent[1].substring(1);
 
         while (!line.isEmpty() && !line.equals(Helper.CRLF)) {
 
@@ -72,8 +72,8 @@ public class RequestParser {
         return METHOD;
     }
 
-    public String getRESOURCE_PATH() {
-        return RESOURCE_PATH;
+    public String getRESOURCE_URI() {
+        return RESOURCE_URI;
     }
 
     public String getHOST() {
