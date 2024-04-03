@@ -124,4 +124,16 @@ public class FileManager {
             throw new PythonExecutionException("Error executing python script " + scriptFile.getName());
         }
     }
+
+    public void uploadFileToServer(BufferedReader bufferedReader, String filename) throws IOException {
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+        String line;
+        while((line = bufferedReader.readLine()) != null) {
+            writer.write(line);
+            writer.newLine();
+        }
+
+        writer.close();
+    }
 }

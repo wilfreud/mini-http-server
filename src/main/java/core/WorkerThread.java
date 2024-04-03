@@ -43,18 +43,19 @@ public class WorkerThread extends Thread {
             LOGGER.info("Incoming HTTP request from %s".formatted(this.requestSocket.getInetAddress().getHostAddress()));
             LOGGER.info("Method: %s \t URI: /%s".formatted(parsedRequest.getMETHOD(), parsedRequest.getRESOURCE_URI()));
 
+            final String URI = parsedRequest.getRESOURCE_URI();
+
+
             switch (method) {
                 case GET:
-                    final String URI = parsedRequest.getRESOURCE_URI();
-
                     // resource path validation
                     Path requestedPath = Paths.get(BASE_DIR, URI).normalize();
-
                     if (!requestedPath.startsWith(BASE_DIR_PATH)) {
                         response = Helper.generateHttpHeaders(StatusCode.FORBIDDEN, 0);
                         output.write(response.getBytes());
                         break;
                     }
+
 
                     File fsNode = new File(BASE_DIR, URI);
 
@@ -115,7 +116,7 @@ public class WorkerThread extends Thread {
                 LOGGER.log(Level.WARNING, "Error sending client response", ioax);
             }
         } catch (PythonExecutionException pex) {
-            LOGGER.log(Level.WARNING, "Error executing script file", pex );
+            LOGGER.log(Level.WARNING, "Error executing script file", pex);
             try {
                 final String html = "<p><em>Script execution failed. please retry or contact admin.</em></p><hr/>";
                 final String res = Helper.generateSimpleResponse(StatusCode.INTERNAL_SERVER_ERROR_500.CODE, html);
@@ -123,8 +124,7 @@ public class WorkerThread extends Thread {
             } catch (IOException ex) {
                 LOGGER.log(Level.WARNING, "Error sending client response", ex);
             }
-        }
-        catch (Exception exc) {
+        } catch (Exception exc) {
             LOGGER.log(Level.WARNING, "An unexpected error occured during HTTP request handling", exc);
         } finally {
             if (this.requestSocket != null) {
