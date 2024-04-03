@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class RequestParser {
-    private String METHOD;
-    private String RESOURCE_URI;
+    private final String METHOD;
+    private final String RESOURCE_URI;
     private String HOST;
     private String CONTENT_TYPE;
     private String ACCEPT;

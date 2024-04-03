@@ -7,8 +7,8 @@ public enum StatusCode {
     BAD_REQUEST(400, "Bard Request"),
     INTERNAL_SERVER_ERROR_500(500, "Internal Server Error"),
     NOT_IMPLEMENTED(501, "Not implemented");
-    public int CODE;
-    public String MESSAGE;
+    public final int CODE;
+    public final String MESSAGE;
 
     StatusCode(int code, String message) {
         this.CODE = code;

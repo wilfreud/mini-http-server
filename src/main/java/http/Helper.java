@@ -18,7 +18,7 @@ public class Helper {
     * Check how to set content-type based on the returned data
     * */
     public static String generateHttpHeaders(StatusCode status, long contentLength){
-        return "HTTP/1.1 " + status.CODE + status.MESSAGE + CRLF +
+        return "HTTP/1.1 " + status.CODE + " " + status.MESSAGE + CRLF +
                 "Content-Length: " + contentLength + CRLF + CRLF ;
     }
 }
