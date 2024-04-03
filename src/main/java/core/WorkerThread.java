@@ -1,6 +1,7 @@
 package core;
 
 import http.*;
+import utils.FileLogger;
 
 import java.io.*;
 import java.net.Socket;
@@ -39,13 +40,11 @@ public class WorkerThread extends Thread {
             final String BASE_DIR = FileManager.BASE_DIR;
             final Path BASE_DIR_PATH = FileManager.BASE_DIR_PATH;
 
-            LOGGER.info("Incoming HTTP request");
-            LOGGER.info("Method: %s\t Host: %s \t URI: %s".formatted(parsedRequest.getMETHOD(), parsedRequest.getHOST(), parsedRequest.getRESOURCE_URI()));
+            LOGGER.info("Incoming HTTP request from %s".formatted(this.requestSocket.getInetAddress().getHostAddress()));
+            LOGGER.info("Method: %s \t URI: /%s".formatted(parsedRequest.getMETHOD(), parsedRequest.getRESOURCE_URI()));
 
             switch (method) {
                 case GET:
-                    // Find file
-
                     final String URI = parsedRequest.getRESOURCE_URI();
 
                     // resource path validation
@@ -88,7 +87,7 @@ public class WorkerThread extends Thread {
             }
 
             output.flush();
-
+            FileLogger.logRequest(this.requestSocket.getInetAddress().getHostAddress(), parsedRequest.getMETHOD(), parsedRequest.getRESOURCE_URI());
         } catch (IOException err) {
             try {
                 final String res = Helper.generateHttpHeaders(StatusCode.INTERNAL_SERVER_ERROR_500, 0);

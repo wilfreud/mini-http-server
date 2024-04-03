@@ -24,7 +24,6 @@ public class RequestParser {
         if (streamCanBeMarked) buf.mark(1024);
 
         String line = buf.readLine();
-
         if (line == null || line.isEmpty()) throw new ParsingException("Error while parsing incoming HTTP request: Empty request");
 
         String[] lineContent = line.split(" ");
@@ -36,7 +35,6 @@ public class RequestParser {
         while (!line.isEmpty() && !line.equals(Helper.CRLF)) {
 
             line = buf.readLine();
-//            System.out.println("Line -> " + line);
 
             // Extract host address
             if (line.startsWith("Host")) {

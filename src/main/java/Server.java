@@ -1,4 +1,4 @@
-import config.Config;
+import utils.Config;
 import core.ListenerThread;
 
 import java.util.logging.Logger;

@@ -1,6 +1,6 @@
 package core;
 
-import config.Config;
+import utils.Config;
 import http.Helper;
 import http.PythonExecutionException;
 import http.StatusCode;
