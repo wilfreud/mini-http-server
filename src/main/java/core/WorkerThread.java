@@ -7,11 +7,13 @@ import java.net.Socket;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 public class WorkerThread extends Thread {
     private final Socket requestSocket;
-
+    private final static Logger LOGGER = Logger.getLogger(WorkerThread.class.getName());
 
     public WorkerThread(Socket socket) {
         this.requestSocket = socket;
@@ -36,6 +38,10 @@ public class WorkerThread extends Thread {
             String response;
             final String BASE_DIR = FileManager.BASE_DIR;
             final Path BASE_DIR_PATH = FileManager.BASE_DIR_PATH;
+
+            LOGGER.info("Incoming HTTP request");
+            LOGGER.info("Method: %s\t Host: %s \t URI: %s".formatted(parsedRequest.getMETHOD(), parsedRequest.getHOST(), parsedRequest.getRESOURCE_URI()));
+
             switch (method) {
                 case GET:
                     // Find file
@@ -88,61 +94,58 @@ public class WorkerThread extends Thread {
                 final String res = Helper.generateHttpHeaders(StatusCode.INTERNAL_SERVER_ERROR_500, 0);
                 assert output != null;
                 output.write(res.getBytes());
-                System.err.println(err.getMessage());
+
             } catch (IOException | AssertionError err2) {
-                System.err.println(err2.getMessage());
+                LOGGER.log(Level.WARNING, "Error sending client response", err2);
             }
         } catch (ParsingException err) {
-            System.err.println(err.getMessage());
+            LOGGER.log(Level.WARNING, "Error parsing incoming HTTP request", err);
             final String res = Helper.generateHttpHeaders(StatusCode.INTERNAL_SERVER_ERROR_500, 0);
             try {
                 output.write(res.getBytes());
             } catch (IOException e) {
-                System.err.println("Error sending client's response");
-                System.err.println(e.getMessage());
+                LOGGER.log(Level.WARNING, "Error sending client response", e);
             }
         } catch (InvalidPathException ipx) {
-            System.err.println(ipx.getMessage());
+            LOGGER.log(Level.WARNING, "Invalid file path detected", ipx);
             final String res = Helper.generateHttpHeaders(StatusCode.BAD_REQUEST, 0);
             try {
                 assert output != null;
                 output.write(res.getBytes());
             } catch (IOException | AssertionError ioax) {
-                System.err.println("Error sending BAD_REQUEST response: " + ioax.getMessage());
+                LOGGER.log(Level.WARNING, "Error sending client response", ioax);
             }
         } catch (PythonExecutionException pex) {
+            LOGGER.log(Level.WARNING, "Error executing script file", pex );
             try {
                 final String html = "<p><em>Script execution failed. please retry or contact admin.</em></p><hr/>";
                 final String res = Helper.generateSimpleResponse(StatusCode.INTERNAL_SERVER_ERROR_500.CODE, html);
                 output.write(res.getBytes());
             } catch (IOException ex) {
-                System.err.println("Failed to send response to client on python script execution");
+                LOGGER.log(Level.WARNING, "Error sending client response", ex);
             }
-        } catch (Exception exc) {
-            System.err.println("AN unexpected error occured:: ");
-            exc.printStackTrace();
+        }
+        catch (Exception exc) {
+            LOGGER.log(Level.WARNING, "An unexpected error occured during HTTP request handling", exc);
         } finally {
             if (this.requestSocket != null) {
                 try {
                     this.requestSocket.close();
                 } catch (IOException err) {
-                    System.err.println("Error closing incoming request socket::");
-                    System.err.println(err.getMessage());
+                    LOGGER.log(Level.WARNING, "Error closing incoming request's socket", err);
                 }
             }
 
             try {
                 if (input != null) input.close();
             } catch (IOException err) {
-                System.err.println("Error closing input stream");
-                System.err.println(err.getMessage());
+                LOGGER.log(Level.WARNING, "Error closing input stream", err);
             }
 
             try {
                 if (output != null) output.close();
             } catch (IOException err) {
-                System.err.println("Error closing output stream");
-                System.err.println(err.getMessage());
+                LOGGER.log(Level.WARNING, "Error closing output stream", err);
             }
         }
     }

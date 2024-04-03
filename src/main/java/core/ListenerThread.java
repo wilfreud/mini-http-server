@@ -3,11 +3,14 @@ package core;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 public class ListenerThread extends Thread {
 
+    private final static Logger LOGGER = Logger.getLogger(ListenerThread.class.getName());
+
     int port;
-    ServerSocket serverSocket = null;
+    private ServerSocket serverSocket = null;
 
 
     public ListenerThread(int port) {
@@ -15,14 +18,15 @@ public class ListenerThread extends Thread {
         try {
             this.serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            System.err.println("Failed to open listener socket::");
+            LOGGER.severe("Failed to open listener socket");
             System.err.println(e.getMessage());
+            System.exit(-1);
         }
     }
 
     @Override
     public void run() {
-        System.out.println("Server running on: 0.0.0.0:" + this.port);
+        LOGGER.info("Server running on http://localhost:" + this.port);
         try {
             while (this.serverSocket.isBound() && !this.serverSocket.isClosed()) {
                 Socket incomingReq = this.serverSocket.accept();
@@ -32,14 +36,15 @@ public class ListenerThread extends Thread {
                 incomingReqHandler.start();
             }
         } catch (IOException e) {
-            System.err.println("Error handling incoming request::");
+            LOGGER.warning("Error handling incoming request");
             System.err.println(e.getMessage());
         } finally {
             if (this.serverSocket != null) {
                 try {
                     this.serverSocket.close();
+                    LOGGER.info("Successfully closed server socket");
                 } catch (IOException err) {
-                    System.err.println("Failed to close listener socket::");
+                    LOGGER.warning("Error closing server socket");
                     System.err.println(err.getMessage());
                 }
             }

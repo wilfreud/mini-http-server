@@ -1,5 +1,6 @@
 package core;
 
+import config.Config;
 import http.Helper;
 import http.PythonExecutionException;
 import http.StatusCode;
@@ -11,7 +12,7 @@ import java.nio.file.Paths;
 
 public class FileManager {
 
-    public static String BASE_DIR = "src/main/resources/htdocs";
+    public static String BASE_DIR = Config.BASE_DIR;
     public static final Path BASE_DIR_PATH = Paths.get(BASE_DIR).normalize();
 
     public FileManager() {
@@ -49,6 +50,7 @@ public class FileManager {
                     <title>Commodore64 - Server</title>
                     <style>
                         body {
+                            background-color: #fbfbfb;
                             margin: 2em 4em;
                             font-family: Tahoma, Verdana, Arial, sans-serif;
                         }
@@ -98,13 +100,7 @@ public class FileManager {
         try {
             Path path = Paths.get(scriptFile.getAbsolutePath());
 
-            // Run script: assuming the programs are installed on the system and PATH is set
-            String command = "";
-            if(path.endsWith(".py")){
-                command = "python";
-            }
-
-            Process process = Runtime.getRuntime().exec(command + " " + path);
+            Process process = Runtime.getRuntime().exec( "python " + path);
 
             BufferedReader scriptOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder outputBuilder = new StringBuilder();
